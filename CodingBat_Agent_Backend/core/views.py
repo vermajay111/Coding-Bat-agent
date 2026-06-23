@@ -19,17 +19,19 @@ def send_request_to_agent(request):
 def check_agent_status(request):
     task_id = request.data.get("job_id")
     
+    
     if not task_id:
         return Response({"error": "No task id provided"})
     
     task = celery_app.AsyncResult(task_id)
     state = task.state
     
+    print(state)
     if state == "PENDING":
         return Response({"status": "pending"})
     if state == "FAILURE":
-        return Response({"status": "Task failed to complete"}, status=500)
+        return Response({"status": "failed"})
     if state == "SUCCESS":
-        return Response({"status": "Task completed"}, status=200)
+        return Response({"status": "completed"})
     
-    return Response({"error": "error ocurred in system please try again"})
+    return Response({"status": "failed"})
